@@ -19,17 +19,25 @@ export const CONFIG = {
     address: '12 Nguyễn Văn Bảo, Phường 4, Quận Gò Vấp, TP.HCM',
     time: '08:00 – Lễ tốt nghiệp',
     mapQuery: 'Đại học Công nghiệp TP.HCM, 12 Nguyễn Văn Bảo, Gò Vấp',
+    // 2 ảnh bên phải lịch (đổi thành ảnh của bạn: '/images/ten-anh.jpg')
+    photos: ['/images/hero.webp', '/images/letter.webp'],
   },
+  // Sơ đồ khu vực (ảnh vitri.svg đã đổi sang webp)
+  location: { image: '/images/vitri.webp', note: 'Chạm vào ảnh để phóng to, kéo để xem chi tiết.' },
   restaurant: {
-    name: 'Nhà hàng tiệc (cập nhật tên)',
-    address: 'Cập nhật địa chỉ nhà hàng',
+    name: 'Việt Phố 3',
+    address: '', // ← điền địa chỉ nhà hàng (để trống thì sẽ ẩn dòng này)
     time: '18:00 – Tiệc chúc mừng',
-    mapQuery: 'Nhà hàng tiệc cưới Gò Vấp',
+    mapUrl: 'https://maps.app.goo.gl/jbfm5E7DHNnnaBLE9', // nút "Mở Google Maps"
+    mapQuery: 'Nhà hàng Việt Phố 3',
+    // Muốn bản đồ chính xác 100%: Google Maps → Chia sẻ → Nhúng bản đồ → copy phần src="..." dán vào đây
+    embedUrl: '',
   },
+  finalImage: '/images/anhcuoi.webp', // ảnh cuối trang
+  // 2 bàn dài, mỗi bàn 16 ghế. Điền tên khách theo thứ tự ghế (tối đa 16 tên / bàn):
+  // ghế 1–8 là hàng trên (trái → phải), ghế 9–16 là hàng dưới (trái → phải). Để trống ghế nào thì bỏ qua hoặc điền ''.
   tables: [
-    { name: 'Bàn 1 · Gia đình', guests: ['Ba', 'Mẹ', 'Anh chị em', 'Ông bà'] },
-    { name: 'Bàn 2 · Bạn thân', guests: ['An', 'Bình', 'Chi', 'Dũng'] },
-    { name: 'Bàn 3 · Bạn cùng lớp', guests: ['Em', 'Phúc', 'Giang', 'Hà'] },
-    { name: 'Bàn 4 · Thầy cô', guests: ['Cô Hương', 'Thầy Long', 'Cô Mai'] },
+    { name: 'Bàn 1', note: 'Gia đình & Thầy cô', guests: ['Ba', 'Mẹ', 'Anh chị em', 'Ông bà', 'Cô Hương', 'Thầy Long', 'Cô Mai'] },
+    { name: 'Bàn 2', note: 'Bạn bè', guests: ['An', 'Bình', 'Chi', 'Dũng', 'Em', 'Phúc', 'Giang', 'Hà'] },
   ],
 }

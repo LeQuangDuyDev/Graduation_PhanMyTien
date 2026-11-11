@@ -2,10 +2,13 @@ import { motion } from 'framer-motion'
 import SashImage from './Sash'
 import { CONFIG } from '../config'
 
-const sparks = Array.from({ length: 12 }, (_, i) => {
-  const a = (i / 12) * Math.PI * 2
-  return { x: Math.cos(a) * (70 + (i % 3) * 25), y: Math.sin(a) * (50 + (i % 3) * 20) - 60, s: 0.7 + (i % 4) * 0.3 }
+const GLYPH = ['✦', '✧', '✦', '✨']
+const sparks = Array.from({ length: 20 }, (_, i) => {
+  const a = (i / 20) * Math.PI * 2
+  return { x: Math.cos(a) * (80 + (i % 4) * 28), y: Math.sin(a) * (56 + (i % 4) * 22) - 70, s: 0.7 + (i % 4) * 0.35, g: GLYPH[i % 4], c: i % 3 === 0 ? '#ffc94d' : i % 3 === 1 ? '#ffffff' : '#9ec5ff' }
 })
+// ánh sao li ti trên mặt lá thư (toạ độ %, cỡ chữ theo cqw)
+const dust = [[12, 14, 3.2, 0], [78, 30, 2.6, 0.7], [22, 62, 2.4, 1.3], [64, 78, 3.4, 0.4], [40, 36, 2.2, 1.9], [88, 70, 2.6, 1.1]]
 
 export default function Envelope({ opened, pulled, onSeal, letterRef, sashRef }) {
   const pos = pulled
@@ -17,31 +20,42 @@ export default function Envelope({ opened, pulled, onSeal, letterRef, sashRef })
 
   return (
     <motion.div
-      className="relative aspect-[3/2] w-[min(86vw,360px)]"
+      className={`relative aspect-[3/2] w-[var(--ew)] [--ew:min(86vw,360px)] [container-type:inline-size] ls:[--ew:min(80vw,520px,calc(36svh*1.5))] transition-[margin-top] duration-700 ease-out ${opened ? 'mt-[calc(var(--ew)*.36)]' : 'mt-0'}`}
       style={{ perspective: 1000 }}
-      animate={{ marginTop: opened ? 'clamp(90px,16svh,130px)' : 0 }}
-      transition={{ type: 'spring', stiffness: 80, damping: 16 }}
+      animate={opened ? { y: 0 } : { y: [0, -7, 0] }}
+      transition={opened ? { duration: 0.5 } : { duration: 4, repeat: Infinity, ease: 'easeInOut' }}
     >
       {/* ánh sáng dịu phía sau khi mở */}
       <motion.div className="pointer-events-none absolute -inset-16 rounded-full"
         style={{ background: 'radial-gradient(circle, rgba(158,197,255,.8), transparent 65%)' }}
-        animate={{ opacity: opened ? [0, 1, 0.65] : 0, scale: opened ? [0.6, 1.2, 1] : 0.6 }} transition={{ duration: 1.4, delay: 0.3 }} />
+        animate={pulled ? { opacity: 1, scale: 1.35 } : { opacity: opened ? [0, 1, 0.65] : 0, scale: opened ? [0.6, 1.2, 1] : 0.6 }}
+        transition={pulled ? { duration: 0.8 } : { duration: 1.4, delay: 0.3 }} />
 
       <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-azure to-brand shadow-[0_30px_50px_-15px_rgba(0,26,103,.65)]" />
 
       {/* Lá thư: vị trí (trượt ra) + phần giấy (nhấp nhô nhẹ) */}
       <motion.div className="absolute left-[5%] right-[5%] top-[5%] z-[2] h-[90%]" animate={pos} transition={posT}>
-        <motion.div ref={letterRef} className="linen relative h-full w-full rounded-lg p-4 shadow-[0_-6px_24px_rgba(0,26,103,.22)]"
+        <motion.div ref={letterRef} style={{ padding: '4.4cqw' }} className="linen relative h-full w-full overflow-hidden rounded-lg shadow-[0_-6px_24px_rgba(0,26,103,.22)]"
           animate={opened && !pulled ? { y: [0, -5, 0] } : { y: 0 }}
           transition={opened && !pulled ? { duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 1.4 } : { duration: 0.3 }}>
-          <div ref={sashRef} className="absolute right-3 top-0 w-[26px]" style={{ height: 26 * 5.154 }}>
+          {/* ánh sao li ti */}
+          {dust.map(([x, y, fs, d], i) => (
+            <span key={i} className="twinkle" style={{ left: `${x}%`, top: `${y}%`, fontSize: `${fs}cqw`, color: i % 2 ? '#ffc94d' : '#6fa0ff', animationDelay: `${d}s`, animationDuration: '2.6s' }}>✦</span>
+          ))}
+          {/* vệt sáng quét qua mặt thư: chạy nhẹ khi thư nhô lên, quét nhanh khi được rút ra */}
+          <motion.div className="pointer-events-none absolute inset-0 z-[3]"
+            style={{ background: 'linear-gradient(110deg, transparent 36%, rgba(255,255,255,.95) 50%, transparent 64%)' }}
+            initial={{ x: '-130%' }}
+            animate={pulled ? { x: '130%' } : opened ? { x: ['-130%', '130%'] } : { x: '-130%' }}
+            transition={pulled ? { duration: 0.8, ease: 'easeInOut' } : { duration: 2.2, repeat: Infinity, repeatDelay: 1.8, delay: 1.2, ease: 'easeInOut' }} />
+          <div ref={sashRef} className="absolute top-0" style={{ right: '3.3cqw', width: '7.2cqw', height: `${7.2 * 5.154}cqw` }}>
             <SashImage sparks={false} soft={0.35} />
           </div>
-          <div className="pr-9 text-center">
-            <p className="font-script text-[28px] leading-none text-brand">Graduation</p>
-            <p className="font-display text-[10px] font-bold tracking-[.45em] text-brand">INVITATION</p>
-            <p className="mt-3 font-display text-lg font-extrabold text-brand">{CONFIG.name}</p>
-            <p className="text-xs tracking-widest text-azure">{CONFIG.dateText}</p>
+          <div className="text-center" style={{ paddingRight: '10cqw' }}>
+            <p className="font-script leading-none text-brand" style={{ fontSize: '7.8cqw' }}>Graduation</p>
+            <p className="font-display font-bold tracking-[.45em] text-brand" style={{ fontSize: '2.8cqw' }}>INVITATION</p>
+            <p className="font-display font-extrabold text-brand" style={{ fontSize: '5cqw', marginTop: '3.3cqw' }}>{CONFIG.name}</p>
+            <p className="tracking-widest text-azure" style={{ fontSize: '3.3cqw' }}>{CONFIG.dateText}</p>
           </div>
         </motion.div>
       </motion.div>
@@ -58,11 +72,21 @@ export default function Envelope({ opened, pulled, onSeal, letterRef, sashRef })
 
       {/* tia lấp lánh bung ra khi mở nắp */}
       {opened && sparks.map((p, i) => (
-        <motion.span key={i} className="pointer-events-none absolute left-1/2 top-[30%] z-[7] text-sky drop-shadow"
+        <motion.span key={i} className="pointer-events-none absolute left-1/2 top-[30%] z-[7] drop-shadow"
+          style={{ color: p.c, textShadow: '0 0 10px currentColor' }}
           initial={{ x: 0, y: 0, opacity: 0, scale: 0.3 }}
           animate={{ x: p.x, y: p.y, opacity: [0, 1, 0], scale: p.s, rotate: 180 }}
-          transition={{ duration: 1.3, delay: 0.45 + i * 0.03, ease: 'easeOut' }}>✦</motion.span>
+          transition={{ duration: 1.5, delay: 0.4 + i * 0.025, ease: 'easeOut' }}>{p.g}</motion.span>
       ))}
+
+      {/* vòng sao xoay quanh nút bấm: gợi ý "chạm vào đây" */}
+      {!pulled && (
+        <span aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 z-[6] -ml-12 -mt-12 h-24 w-24 animate-[spin_7s_linear_infinite]">
+          {[0, 120, 240].map((r) => (
+            <span key={r} className="absolute left-1/2 top-0 -ml-2 text-sm text-white" style={{ transform: `rotate(${r}deg)`, transformOrigin: '50% 48px', textShadow: '0 0 8px #9ec5ff, 0 0 14px #9ec5ff' }}>✦</span>
+          ))}
+        </span>
+      )}
 
       <motion.button
         aria-label={opened ? 'Rút lá thư ra' : 'Mở hộp thư'}

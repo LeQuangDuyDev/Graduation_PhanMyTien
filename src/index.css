@@ -59,3 +59,38 @@ body { @apply font-body text-deep; margin: 0; background: #fff; overflow-x: hidd
   background-image: repeating-linear-gradient(45deg, rgba(0,26,103,.028) 0 1px, transparent 1px 5px), linear-gradient(180deg, #fffefb, #f6f2e8);
   box-shadow: 0 34px 60px -22px rgba(0,13,61,.75), 0 0 0 1px rgba(0,26,103,.06), inset 0 1px 0 #fff;
 }
+
+/* Lời ngỏ: dọc = giấy đè lên ảnh; ngang = ảnh bên trái, chữ bên phải */
+.letter-sec { --h: min(100vw, 760px); }
+.letter-pull { margin-bottom: calc(var(--h) * -0.33); }
+.letter-img { height: var(--h); }
+.letter-fade { -webkit-mask-image: linear-gradient(to bottom, transparent, #000 45%); mask-image: linear-gradient(to bottom, transparent, #000 45%); }
+@media (orientation: landscape) and (min-width: 560px) {
+  .letter-sec { --h: min(78vh, 600px); }
+  .letter-pull { margin-bottom: 0; }
+  .letter-img { height: auto; }
+  .letter-fade { -webkit-mask-image: none; mask-image: none; }
+}
+
+/* ===== Lung linh ===== */
+.glitter { container-type: size; contain: paint; }
+.glitter-off { visibility: hidden; }
+.glitter-off * { animation-play-state: paused !important; }
+.twinkle { position: absolute; line-height: 1; opacity: 0; transform: translate(-50%, -50%) scale(.2); text-shadow: 0 0 8px currentColor, 0 0 18px currentColor; animation: twinkle 3s ease-in-out infinite; }
+@keyframes twinkle {
+  0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(.2) rotate(0deg) }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(90deg) }
+}
+/* mũ cử nhân bay lơ lửng từ dưới lên (cqh = % chiều cao khung Glitter) */
+.cap-float { position: absolute; bottom: -8%; opacity: 0; animation: capfloat 16s linear infinite; }
+@keyframes capfloat {
+  0% { transform: translate3d(0, 0, 0) rotate(-14deg); opacity: 0 }
+  12% { opacity: .85 }
+  50% { transform: translate3d(calc(var(--dx) * -.5), -52cqh, 0) rotate(14deg) }
+  88% { opacity: .85 }
+  100% { transform: translate3d(var(--dx), -112cqh, 0) rotate(-10deg); opacity: 0 }
+}
+/* vệt sáng quét qua huy hiệu / nút */
+.glint { position: relative; overflow: hidden; }
+.glint::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,.8) 50%, transparent 62%); transform: translateX(-130%); animation: glint 4s ease-in-out infinite; }
+@keyframes glint { 0%, 55% { transform: translateX(-130%) } 100% { transform: translateX(130%) } }
