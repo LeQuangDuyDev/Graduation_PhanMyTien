@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body { @apply font-body text-deep; margin: 0; background: #fff; overflow-x: hidden;
+  padding-bottom: env(safe-area-inset-bottom); }
+.silk { background: url('/images/silk.webp') center / cover; animation: silk 22s ease-in-out infinite alternate; will-change: transform; }
+@keyframes silk {
+  0% { transform: scale(1.05) translate3d(-2%, -1%, 0) rotate(0deg) }
+  100% { transform: scale(1.2) translate3d(3%, 2%, 0) rotate(1.5deg) }
+}
+.silk-sheen {
+  background: linear-gradient(115deg, transparent 28%, rgba(0,26,103,.07) 40%, rgba(255,255,255,.85) 50%, rgba(0,26,103,.06) 60%, transparent 72%);
+  background-size: 260% 260%; animation: sheen 10s ease-in-out infinite alternate;
+}
+@keyframes sheen { from { background-position: 120% 0 } to { background-position: -20% 100% } }
+.sash-shine {
+  -webkit-mask: var(--m) center / 100% 100% no-repeat; mask: var(--m) center / 100% 100% no-repeat;
+  background: linear-gradient(110deg, transparent 38%, rgba(255,255,255,.75) 50%, transparent 62%);
+  background-size: 300% 300%; animation: shine 2.8s linear infinite;
+}
+@keyframes shine { from { background-position: 150% 150% } to { background-position: -50% -50% } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
+.linen {
+  background-color: #fff;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(60,100,220,.07) 0 2px, transparent 2px 6px),
+    repeating-linear-gradient(-45deg, rgba(60,100,220,.07) 0 2px, transparent 2px 6px);
+}
+.marquee { display: flex; width: max-content; animation: marq 22s linear infinite; }
+@keyframes marq { to { transform: translateX(-50%) } }
+.card { @apply bg-white/80 backdrop-blur border-2 border-white rounded-[28px] shadow-[0_20px_50px_-20px_rgba(0,26,103,.45)]; }
+.btn {
+  @apply inline-block rounded-full bg-brand text-white font-display font-bold px-8 py-3 border-2 border-deep
+    shadow-[4px_4px_0_#000d3d] transition-all hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#000d3d] active:translate-y-1 active:shadow-none;
+}
+.field { @apply w-full rounded-2xl border-2 border-ice bg-white px-4 py-3 outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/15; }
+
+/* Sash vải mềm: ảnh cắt thành các dải, mỗi dải lắc lệch pha tạo sóng chạy dọc từ trên xuống */
+.sash-strip { transform-origin: 50% 0; animation: cloth 3.6s ease-in-out infinite; animation-delay: calc(var(--i) * -0.24s); will-change: transform; }
+@keyframes cloth {
+  0%, 100% { transform: translateX(calc(var(--a) * -1)) skewX(-.6deg) }
+  50% { transform: translateX(var(--a)) skewX(.6deg) }
+}
+.sash-fold {
+  -webkit-mask: var(--m) center / 100% 100% no-repeat; mask: var(--m) center / 100% 100% no-repeat;
+  background: linear-gradient(90deg, rgba(0,0,30,.28), transparent 35%, rgba(255,255,255,.22) 62%, transparent 85%);
+  background-size: 220% 100%; animation: fold 4.5s ease-in-out infinite alternate; mix-blend-mode: soft-light;
+}
+@keyframes fold { from { background-position: 0 0 } to { background-position: 100% 0 } }
+.fade-mask-t { -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent); mask-image: linear-gradient(to bottom, #000 55%, transparent); }
+.fade-mask-b { -webkit-mask-image: linear-gradient(to top, #000 55%, transparent); mask-image: linear-gradient(to top, #000 55%, transparent); }
+.fade-mask-panel { -webkit-mask-image: linear-gradient(to bottom, transparent, #000 56px); mask-image: linear-gradient(to bottom, transparent, #000 56px); }
+
+.fade-mask-t2 { -webkit-mask-image: linear-gradient(to bottom, #000 35%, transparent); mask-image: linear-gradient(to bottom, #000 35%, transparent); }
+.paper {
+  background-color: #fffdf8;
+  background-image: repeating-linear-gradient(45deg, rgba(0,26,103,.028) 0 1px, transparent 1px 5px), linear-gradient(180deg, #fffefb, #f6f2e8);
+  box-shadow: 0 34px 60px -22px rgba(0,13,61,.75), 0 0 0 1px rgba(0,26,103,.06), inset 0 1px 0 #fff;
+}
