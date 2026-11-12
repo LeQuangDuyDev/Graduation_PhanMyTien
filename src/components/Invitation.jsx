@@ -24,10 +24,10 @@ const Photo = ({ src, i }) => src
 
 // Bố cục polaroid: ảnh lớn xen ảnh nhỏ (mobile 2 cột, desktop 6 cột)
 const LAYOUT = [
-  { span: 'col-span-2 sm:col-span-4', self: '', aspect: 'aspect-[4/3]', rot: -2.5, cap: 'Ngày đẹp nhất 🎓' },
+  { span: 'col-span-2 sm:col-span-4', self: '', aspect: 'aspect-[4/3]', rot: -2.5, cap: 'Ngày đẹp nhất sinh viên 🎓' },
   { span: 'sm:col-span-2', self: 'self-end', aspect: 'aspect-[3/4]', rot: 4, cap: 'Cười thật tươi' },
-  { span: 'sm:col-span-2', self: 'self-start mt-4', aspect: 'aspect-square', rot: -4, cap: 'Cùng bạn bè' },
-  { span: 'col-span-2 sm:col-span-4', self: '', aspect: 'aspect-[5/4]', rot: 2.5, cap: 'Gia đình ❤️' },
+  { span: 'sm:col-span-2', self: 'self-start mt-4', aspect: 'aspect-square', rot: -4, cap: '`~~' },
+  { span: 'col-span-2 sm:col-span-4', self: '', aspect: 'aspect-[5/4]', rot: 2.5, cap: '❤️' },
   { span: 'sm:col-span-3', self: 'self-start', aspect: 'aspect-[3/4]', rot: -3, cap: 'Thanh xuân' },
   { span: 'sm:col-span-3', self: 'self-end mt-6', aspect: 'aspect-square', rot: 3, cap: 'Tốt nghiệp thôi!' },
 ]

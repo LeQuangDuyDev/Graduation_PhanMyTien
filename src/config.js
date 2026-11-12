@@ -7,7 +7,7 @@ export const CONFIG = {
   heroImage: '/images/hero.webp',   // ảnh chủ buổi lễ (nền đầu trang)
   letterImage: '/images/letter.webp', // ảnh nền phần lời ngỏ
   letterTitle: 'Gửi đến người Tiên yêu quý',
-  photos: ['', '', '', '', '', ''], // 6 ảnh chủ nhân
+  photos: ['/images/chuthe1.jpg', '/images/chuthe2.jpg', '/images/chuthe3.jpg', '/images/chuthe4.jpg', '/images/chuthe5.jpg', '/images/chuthe6.jpg'], // 6 ảnh chủ nhân
   letter: [
     'Có những hành trình tưởng chừng rất dài, nhưng rồi cũng đến ngày nhìn lại và nhận ra mình đã đi được một chặng đường thật đáng nhớ.',
     'Sau những ngày tháng học tập, những lần cố gắng, những niềm vui và cả những thử thách, mình cuối cùng cũng sắp chạm đến một cột mốc đặc biệt là ngày tốt nghiệp đại học!',
@@ -17,7 +17,7 @@ export const CONFIG = {
   school: {
     name: 'Đại học Công nghiệp TP. Hồ Chí Minh (IUH)',
     address: '12 Nguyễn Văn Bảo, Phường 4, Quận Gò Vấp, TP.HCM',
-    time: '08:00 – Lễ tốt nghiệp',
+    time: '13:00 – Lễ tốt nghiệp',
     mapQuery: 'Đại học Công nghiệp TP.HCM, 12 Nguyễn Văn Bảo, Gò Vấp',
     // 2 ảnh bên phải lịch (đổi thành ảnh của bạn: '/images/ten-anh.jpg')
     photos: ['/images/hero.webp', '/images/letter.webp'],
@@ -26,7 +26,7 @@ export const CONFIG = {
   location: { image: '/images/vitri.webp', note: 'Chạm vào ảnh để phóng to, kéo để xem chi tiết.' },
   restaurant: {
     name: 'Việt Phố 3',
-    address: '', // ← điền địa chỉ nhà hàng (để trống thì sẽ ẩn dòng này)
+    address: '18B Phan Văn Trị, Gò Vấp, TP.HCM', // ← điền địa chỉ nhà hàng (để trống thì sẽ ẩn dòng này)
     time: '18:00 – Tiệc chúc mừng',
     mapUrl: 'https://maps.app.goo.gl/jbfm5E7DHNnnaBLE9', // nút "Mở Google Maps"
     mapQuery: 'Nhà hàng Việt Phố 3',
@@ -37,7 +37,7 @@ export const CONFIG = {
   // 2 bàn dài, mỗi bàn 16 ghế. Điền tên khách theo thứ tự ghế (tối đa 16 tên / bàn):
   // ghế 1–8 là hàng trên (trái → phải), ghế 9–16 là hàng dưới (trái → phải). Để trống ghế nào thì bỏ qua hoặc điền ''.
   tables: [
-    { name: 'Bàn 1', note: 'Gia đình & Thầy cô', guests: ['Ba', 'Mẹ', 'Anh chị em', 'Ông bà', 'Cô Hương', 'Thầy Long', 'Cô Mai'] },
-    { name: 'Bàn 2', note: 'Bạn bè', guests: ['An', 'Bình', 'Chi', 'Dũng', 'Em', 'Phúc', 'Giang', 'Hà'] },
+    { name: 'Bàn 1', note: '', guests: ['Ba', 'Mẹ', 'Anh chị em', 'Ông bà', 'Cô Hương', 'Thầy Long', 'Cô Mai'] },
+    { name: 'Bàn 2', note: '', guests: ['An', 'Bình', 'Chi', 'Dũng', 'Em', 'Phúc', 'Giang', 'Hà'] },
   ],
 }
