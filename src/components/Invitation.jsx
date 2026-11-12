@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { motion, useInView, useScroll, useTransform } from 'framer-motion'
-import confetti from 'canvas-confetti'
 import { CONFIG } from '../config'
 import { HangingSash } from './Sash'
 import Glitter from './Glitter'
+import { toss, celebrate } from '../fx'
 
 const NARROW = 'mx-auto w-full max-w-3xl'
 const up = { hidden: { opacity: 0, y: 50 }, show: { opacity: 1, y: 0 } }
@@ -24,9 +24,9 @@ const Photo = ({ src, i }) => src
 
 // Bố cục polaroid: ảnh lớn xen ảnh nhỏ (mobile 2 cột, desktop 6 cột)
 const LAYOUT = [
-  { span: 'col-span-2 sm:col-span-4', self: '', aspect: 'aspect-[4/3]', rot: -2.5, cap: 'Ngày đẹp nhất sinh viên 🎓' },
+  { span: 'col-span-2 sm:col-span-4', self: '', aspect: 'aspect-[4/3]', rot: -2.5, cap: 'Ngày đẹp nhất 🎓' },
   { span: 'sm:col-span-2', self: 'self-end', aspect: 'aspect-[3/4]', rot: 4, cap: 'Cười thật tươi' },
-  { span: 'sm:col-span-2', self: 'self-start mt-4', aspect: 'aspect-square', rot: -4, cap: '`~~' },
+  { span: 'sm:col-span-2', self: 'self-start mt-4', aspect: 'aspect-square', rot: -4, cap: '^.^' },
   { span: 'col-span-2 sm:col-span-4', self: '', aspect: 'aspect-[5/4]', rot: 2.5, cap: '❤️' },
   { span: 'sm:col-span-3', self: 'self-start', aspect: 'aspect-[3/4]', rot: -3, cap: 'Thanh xuân' },
   { span: 'sm:col-span-3', self: 'self-end mt-6', aspect: 'aspect-square', rot: 3, cap: 'Tốt nghiệp thôi!' },
@@ -53,6 +53,23 @@ function useCountdown() {
   return [['Ngày', Math.floor(d / 864e5)], ['Giờ', Math.floor(d / 36e5) % 24], ['Phút', Math.floor(d / 6e4) % 60], ['Giây', Math.floor(d / 1e3) % 60]]
 }
 
+// Đồng hồ đếm ngược: tách thành component riêng để mỗi giây chỉ nó render lại
+function Countdown({ ready, wide }) {
+  const time = useCountdown()
+  return (
+    <div className="flex justify-center gap-2 sm:gap-3 ls:justify-start">
+      {time.map(([l, v], i) => (
+        <motion.div key={l} initial={wide ? { opacity: 0, y: 24 } : false} animate={ready && wide ? { opacity: 1, y: 0 } : undefined}
+          transition={{ delay: 1.15 + i * 0.1, duration: 0.6, ease: EASE }}
+          className="w-[17vw] max-w-16 rounded-2xl border border-white/40 bg-white/20 py-2.5 text-center ls:w-[clamp(3.4rem,6vw,5rem)] ls:max-w-none">
+          <div className="font-display text-xl font-extrabold sm:text-2xl ls:text-[clamp(1.25rem,2.4vw,2rem)]">{String(v).padStart(2, '0')}</div>
+          <div className="text-[11px] opacity-80">{l}</div>
+        </motion.div>
+      ))}
+    </div>
+  )
+}
+
 const norm = (x) => x.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').toLowerCase().replace(/\s+/g, ' ').trim()
 // Khớp đúng toàn bộ tên (không phân biệt hoa/thường, có hay không dấu)
 function findSeat(q) {
@@ -60,40 +77,46 @@ function findSeat(q) {
   if (!n) return null
   for (let ti = 0; ti < CONFIG.tables.length; ti++) {
     const seat = CONFIG.tables[ti].guests.findIndex((g) => g && norm(g) === n)
-    if (seat >= 0 && seat < 16) return { ti, seat, table: CONFIG.tables[ti] }
+    if (seat >= 0) return { ti, seat, table: CONFIG.tables[ti] }
   }
   return null
 }
 
-const Seat = ({ n, on, dim }) => (
-  <motion.div
-    className={`relative flex aspect-square w-full items-center justify-center rounded-full border-2 font-display text-[10px] font-bold sm:text-sm ${on ? 'z-10 border-deep bg-brand text-white' : 'border-sky bg-white text-brand/50'}`}
-    animate={on
-      ? { scale: 1.35, opacity: 1, boxShadow: ['0 0 0 0 rgba(43,92,255,.7)', '0 0 0 12px rgba(43,92,255,0)'] }
-      : { scale: 1, opacity: dim ? 0.45 : 1, boxShadow: '0 0 0 0 rgba(43,92,255,0)' }}
-    transition={on ? { scale: { type: 'spring', stiffness: 300, damping: 14 }, boxShadow: { duration: 1.3, repeat: Infinity } } : { duration: 0.3 }}>
-    {n}
-  </motion.div>
+// Ghế: có tên thì hiện tên (điện thoại: chữ dọc cho vừa ghế, màn lớn: chữ ngang). Nhập đúng tên → chỉ tô đậm ghế đó.
+const Chair = ({ name, on, dim }) => (
+  <div className={`relative flex h-14 items-center justify-center overflow-hidden whitespace-nowrap rounded-md border-2 text-center font-display text-[11px] leading-none transition duration-300 [writing-mode:vertical-rl] sm:h-10 sm:rounded-lg sm:text-xs sm:[writing-mode:horizontal-tb] ${
+    on ? 'seat-on z-10 scale-110 border-deep bg-brand font-extrabold text-white'
+      : name ? 'border-sky bg-white font-semibold text-brand' : 'border-dashed border-sky/70 bg-white/40'} ${!on && dim ? 'opacity-40' : ''}`}>
+    {name}
+  </div>
 )
 
-// Bàn dài: 8 ghế hàng trên (1–8), 8 ghế hàng dưới (9–16)
-const LongTable = ({ table, hitSeat, dim }) => {
-  const row = (from) => (
-    <div className="grid grid-cols-8 gap-1.5 sm:gap-3">
-      {Array.from({ length: 8 }, (_, k) => <Seat key={from + k} n={from + k + 1} on={hitSeat === from + k} dim={dim} />)}
+// Bàn dài nằm ngang: hàng ghế trên – thân bàn (tên bàn) – hàng ghế dưới
+const Table = ({ table, hitSeat, dim }) => {
+  const total = Math.max(table.seats || 0, table.guests.length)
+  const half = Math.ceil(total / 2)
+  const row = (from, to) => (
+    <div className="grid gap-1 sm:gap-1.5" style={{ gridTemplateColumns: `repeat(${to - from}, minmax(0, 1fr))` }}>
+      {Array.from({ length: to - from }, (_, k) => <Chair key={from + k} name={table.guests[from + k]} on={hitSeat === from + k} dim={dim} />)}
     </div>
   )
   return (
-    <div>
-      {row(0)}
-      <div className="my-2.5 rounded-2xl border-2 border-sky bg-gradient-to-b from-ice to-white py-3 text-center shadow-inner">
-        <p className="font-display text-lg font-extrabold tracking-widest text-brand">{table.name.toUpperCase()}</p>
-        {table.note && <p className="text-xs text-deep/60">{table.note}</p>}
+    <div className="space-y-1 sm:space-y-1.5">
+      {row(0, half)}
+      <div className="flex min-h-8 items-center justify-center rounded-xl border-2 border-sky bg-gradient-to-r from-ice to-white px-1 py-0.5 text-center shadow-inner">
+        <p className="font-display text-[10px] font-extrabold leading-tight text-brand sm:text-xs">{table.name} ({total} người)</p>
       </div>
-      {row(8)}
+      {row(half, total)}
     </div>
   )
 }
+
+// Cửa nằm bên trái, ngang hàng với Bàn bạn bè
+const Door = () => (
+  <div className="flex items-center justify-center rounded-xl border-2 border-deep bg-sun shadow-[2px_2px_0_#000d3d]">
+    <span className="font-display text-[11px] font-extrabold text-deep [writing-mode:vertical-rl] sm:text-xs">🚪 CỬA VÀO</span>
+  </div>
+)
 
 const Map = ({ q, embed, url }) => (
   <>
@@ -146,20 +169,14 @@ function Finale() {
   const { scrollYProgress: p } = useScroll({ target: ref, offset: ['start end', 'end end'] })
   const clip = useTransform(p, [0, 0.7], ['circle(7% at 50% 62%)', 'circle(78% at 50% 50%)'])
   const scale = useTransform(p, [0, 0.7], [1.4, 1])
-  const blur = useTransform(p, [0, 0.6], ['blur(14px)', 'blur(0px)'])
+  const fade = useTransform(p, [0, 0.5], [0.3, 1])   // mờ → rõ bằng opacity (rẻ hơn blur rất nhiều)
   const seen = useInView(ref, { once: true, amount: 0.7 })
-  useEffect(() => {
-    if (!seen) return
-    const cap = confetti.shapeFromText ? confetti.shapeFromText({ text: '🎓', scalar: 3 }) : 'circle'
-    const base = { origin: { x: 0.5, y: 0.85 }, colors: ['#001a67', '#7dd3fc', '#ffe14d', '#ffffff'], shapes: [cap, 'circle'], scalar: 2.2, gravity: 0.7, ticks: 260 }
-    confetti({ ...base, particleCount: 18, angle: 90, spread: 80, startVelocity: 55 })
-    setTimeout(() => confetti({ ...base, particleCount: 14, angle: 90, spread: 120, startVelocity: 40 }), 450)
-  }, [seen])
+  useEffect(() => { if (seen) toss() }, [seen])
   return (
     <section ref={ref} className="relative ml-[calc(50%-50vw)] w-screen ls:ml-0 ls:w-full">
       <div className="relative h-[72svh] overflow-hidden ls:h-auto ls:aspect-[2049/1226] ls:rounded-[28px]">
         <motion.div className="absolute inset-0" style={{ clipPath: clip }}>
-          <motion.img src={CONFIG.finalImage} alt="Ảnh tốt nghiệp" loading="lazy" className="h-full w-full object-cover object-[50%_72%]" style={{ scale, filter: blur }} />
+          <motion.img src={CONFIG.finalImage} alt="Ảnh tốt nghiệp" loading="lazy" className="h-full w-full object-cover object-[50%_72%]" style={{ scale, opacity: fade }} />
           <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-deep/85 via-brand/35 to-transparent" />
         </motion.div>
         <Glitter count={14} seed={5} tone="light" className="absolute inset-0 z-[5]" />
@@ -182,21 +199,36 @@ export default function Invitation({ ready = true }) {
   const textY = useTransform(scrollYProgress, [0, 1], ['0%', '-14%'])
   const imgY = useTransform(scrollYProgress, [0, 1], ['0%', '7%'])
   const wide = useWide()
-  const time = useCountdown()
   const [q, setQ] = useState('')
-  const [sent, setSent] = useState(false)
+  const [form, setForm] = useState({ name: '', attend: 'yes', wish: '' })
+  const [status, setStatus] = useState('idle') // idle | sending | sent | error
   const [zoom, setZoom] = useState(false)
   const hit = findSeat(q)
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault()
-    setSent(true)
-    const end = Date.now() + 1800
-    ;(function frame() {
-      confetti({ particleCount: 6, angle: 60, spread: 70, origin: { x: 0 }, colors: ['#001a67', '#7dd3fc', '#ffe14d', '#ff8fb8'] })
-      confetti({ particleCount: 6, angle: 120, spread: 70, origin: { x: 1 }, colors: ['#001a67', '#7dd3fc', '#ffe14d', '#ff8fb8'] })
-      if (Date.now() < end) requestAnimationFrame(frame)
-    })()
+    if (status === 'sending') return
+    setStatus('sending')
+    try {
+      if (CONFIG.rsvpUrl) {
+        // Gửi 3 thông tin (họ tên, xác nhận, lời chúc) sang Google Sheet qua Google Apps Script
+        await fetch(CONFIG.rsvpUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          body: new URLSearchParams({
+            name: form.name.trim(),
+            attend: form.attend === 'yes' ? 'Có tham dự' : 'Không tham dự',
+            wish: form.wish.trim(),
+          }),
+        })
+      } else {
+        console.warn('Chưa điền CONFIG.rsvpUrl trong src/config.js nên dữ liệu chưa được lưu vào Google Sheet.')
+      }
+      setStatus('sent')
+      if (form.attend === 'yes') celebrate()
+    } catch (err) {
+      setStatus('error')
+    }
   }
   const marq = Array(8).fill('🎓 CONGRATS GRAD · 2026 · ').join('')
 
@@ -243,8 +275,8 @@ export default function Invitation({ ready = true }) {
           </motion.div>
 
           {/* vùng chữ (mobile): làm ảnh mờ nhẹ + phủ xanh, phần giữa (khuôn mặt) giữ nét */}
-          <div className="fade-mask-t2 absolute inset-x-0 top-0 h-[27%] bg-gradient-to-b from-deep/85 via-brand/40 to-transparent backdrop-blur-[3px] ls:hidden" />
-          <div className="fade-mask-b absolute inset-x-0 bottom-0 h-[28%] bg-gradient-to-t from-deep/90 via-brand/55 to-transparent backdrop-blur-[4px] ls:hidden" />
+          <div className="fade-mask-t2 absolute inset-x-0 top-0 h-[27%] bg-gradient-to-b from-deep/85 via-brand/40 to-transparent ls:hidden" />
+          <div className="fade-mask-b absolute inset-x-0 bottom-0 h-[28%] bg-gradient-to-t from-deep/90 via-brand/55 to-transparent ls:hidden" />
 
           {/* THÔNG TIN (cột trái khi ngang) */}
           <motion.div className="relative z-10 flex min-h-svh w-full flex-col items-center justify-between px-5 pb-14 pt-4 text-center ls:order-2 ls:min-h-0 ls:items-start ls:justify-center ls:gap-7 ls:p-0 ls:text-left"
@@ -267,16 +299,7 @@ export default function Invitation({ ready = true }) {
             <div>
               <motion.div initial={{ rotate: -10, scale: 0 }} animate={ready ? { rotate: -4, scale: 1 } : undefined} transition={{ type: 'spring', delay: 1 }}
                 className="glint mb-4 inline-block rounded-2xl bg-sun px-5 py-2 font-display text-lg font-extrabold tracking-widest text-deep shadow-[4px_4px_0_#000d3d] sm:text-xl">{CONFIG.dateText}</motion.div>
-              <div className="flex justify-center gap-2 sm:gap-3 ls:justify-start">
-                {time.map(([l, v], i) => (
-                  <motion.div key={l} initial={wide ? { opacity: 0, y: 24 } : false} animate={ready && wide ? { opacity: 1, y: 0 } : undefined}
-                    transition={{ delay: 1.15 + i * 0.1, duration: 0.6, ease: EASE }}
-                    className="w-[17vw] max-w-16 rounded-2xl border border-white/40 bg-white/15 py-2.5 text-center backdrop-blur ls:w-[clamp(3.4rem,6vw,5rem)] ls:max-w-none">
-                    <div className="font-display text-xl font-extrabold sm:text-2xl ls:text-[clamp(1.25rem,2.4vw,2rem)]">{String(v).padStart(2, '0')}</div>
-                    <div className="text-[11px] opacity-80">{l}</div>
-                  </motion.div>
-                ))}
-              </div>
+              <Countdown ready={ready} wide={wide} />
             </div>
           </motion.div>
         </div>
@@ -352,17 +375,24 @@ export default function Invitation({ ready = true }) {
         <section className={NARROW}>
           <Title tag="RSVP">Bạn có đến không? 🥳</Title>
           <Reveal className="card p-6 sm:p-8">
-            {sent ? (
+            {status === 'sent' ? (
               <motion.p initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="py-8 text-center font-display text-2xl font-bold text-brand">
-                🎉 Cảm ơn bạn! Tiên rất mong gặp bạn ngày {CONFIG.dateText}.
+                {form.attend === 'yes' ? `🎉 Cảm ơn bạn! Tiên rất mong gặp bạn ngày ${CONFIG.dateText}.` : '💙 Cảm ơn bạn đã nhắn gửi, Tiên sẽ nhớ lời chúc này!'}
               </motion.p>
             ) : (
               <form onSubmit={submit} className="space-y-4">
-                <input required className="field" placeholder="Họ và tên của bạn" />
-                <select className="field" defaultValue="yes"><option value="yes">Mình sẽ tham dự 🎓</option><option value="no">Rất tiếc, mình bận mất rồi 😢</option></select>
-                <input type="number" min="0" max="5" className="field" placeholder="Số người đi cùng" />
-                <textarea rows="3" className="field" placeholder="Lời chúc gửi đến Tiên…" />
-                <button className="btn glint w-full" type="submit">Gửi xác nhận 🚀</button>
+                <input required className="field" placeholder="Họ và tên của bạn" value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                <select className="field" value={form.attend} onChange={(e) => setForm({ ...form, attend: e.target.value })}>
+                  <option value="yes">Mình sẽ tham dự 🎓</option>
+                  <option value="no">Rất tiếc, mình bận mất rồi 😢</option>
+                </select>
+                <textarea rows="3" className="field" placeholder="Lời chúc gửi đến Tiên…" value={form.wish}
+                  onChange={(e) => setForm({ ...form, wish: e.target.value })} />
+                {status === 'error' && <p className="text-center text-sm font-semibold text-red-600">Gửi chưa được, bạn thử lại giúp Tiên nhé!</p>}
+                <button className="btn glint w-full disabled:opacity-60" type="submit" disabled={status === 'sending'}>
+                  {status === 'sending' ? 'Đang gửi…' : 'Gửi xác nhận 🚀'}
+                </button>
               </form>
             )}
           </Reveal>
@@ -414,20 +444,29 @@ export default function Invitation({ ready = true }) {
           </Reveal>
         </section>
 
-        {/* Chỗ ngồi (sau bản đồ nhà hàng): 2 bàn dài × 16 ghế, nhập đúng tên thì ghế đó được tô đậm */}
+        {/* Chỗ ngồi: Bàn Gia đình (10 người) ở trên, Bàn bạn bè (20 người) ở dưới, Cửa bên trái; nhập đúng tên thì chỉ tô đậm ghế đó */}
         <section className={NARROW}>
           <Title tag="SEATING">Tìm chỗ ngồi của bạn 🪑</Title>
           <Reveal>
-            <input className="field mb-4" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Nhập đúng tên của bạn…" />
-            {q.trim() && (
-              <motion.p key={hit ? 'y' : 'n'} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mb-4 text-center font-bold text-brand">
-                {hit ? `✨ Bạn ngồi ở ${hit.table.name} · Ghế số ${hit.seat + 1}` : 'Chưa thấy tên bạn, hãy nhập đúng họ tên hoặc nhắn Tiên nhé!'}
-              </motion.p>
+            <input className="field mb-4" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Nhập tên của bạn…" />
+            {q.trim() && !hit && (
+              <p className="mb-4 text-center text-sm font-semibold text-brand/70">Chưa thấy tên bạn, hãy nhập đúng họ tên hoặc nhắn Tiên nhé!</p>
             )}
-            <div className="card space-y-6 p-3 sm:p-6">
-              {CONFIG.tables.slice(0, 2).map((t, ti) => (
-                <LongTable key={t.name} table={t} hitSeat={hit?.ti === ti ? hit.seat : -1} dim={!!hit} />
-              ))}
+            <div className="card p-3 sm:p-6">
+              <div className="mx-auto grid max-w-[560px] grid-cols-[36px_1fr] gap-x-2 gap-y-4 sm:grid-cols-[52px_1fr] sm:gap-x-3">
+                {CONFIG.tables.slice(0, 2).map((t, ti) => {
+                  const maxHalf = Math.max(...CONFIG.tables.slice(0, 2).map((x) => Math.ceil(Math.max(x.seats || 0, x.guests.length) / 2)))
+                  const half = Math.ceil(Math.max(t.seats || 0, t.guests.length) / 2)
+                  return (
+                    <Fragment key={t.name}>
+                      {ti === 1 ? <Door /> : <div />}
+                      <div style={{ width: `${(half / maxHalf) * 100}%` }}>
+                        <Table table={t} hitSeat={hit?.ti === ti ? hit.seat : -1} dim={!!hit} />
+                      </div>
+                    </Fragment>
+                  )
+                })}
+              </div>
             </div>
           </Reveal>
         </section>

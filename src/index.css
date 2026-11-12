@@ -30,7 +30,7 @@ body { @apply font-body text-deep; margin: 0; background: #fff; overflow-x: hidd
 }
 .marquee { display: flex; width: max-content; animation: marq 22s linear infinite; }
 @keyframes marq { to { transform: translateX(-50%) } }
-.card { @apply bg-white/80 backdrop-blur border-2 border-white rounded-[28px] shadow-[0_20px_50px_-20px_rgba(0,26,103,.45)]; }
+.card { @apply bg-white/90 border-2 border-white rounded-[28px] shadow-[0_20px_50px_-20px_rgba(0,26,103,.45)]; }
 .btn {
   @apply inline-block rounded-full bg-brand text-white font-display font-bold px-8 py-3 border-2 border-deep
     shadow-[4px_4px_0_#000d3d] transition-all hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#000d3d] active:translate-y-1 active:shadow-none;
@@ -38,7 +38,7 @@ body { @apply font-body text-deep; margin: 0; background: #fff; overflow-x: hidd
 .field { @apply w-full rounded-2xl border-2 border-ice bg-white px-4 py-3 outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/15; }
 
 /* Sash vải mềm: ảnh cắt thành các dải, mỗi dải lắc lệch pha tạo sóng chạy dọc từ trên xuống */
-.sash-strip { transform-origin: 50% 0; animation: cloth 3.6s ease-in-out infinite; animation-delay: calc(var(--i) * -0.24s); will-change: transform; }
+.sash-strip { transform-origin: 50% 0; animation: cloth 3.6s ease-in-out infinite; will-change: transform; }
 @keyframes cloth {
   0%, 100% { transform: translateX(calc(var(--a) * -1)) skewX(-.6deg) }
   50% { transform: translateX(var(--a)) skewX(.6deg) }
@@ -81,16 +81,23 @@ body { @apply font-body text-deep; margin: 0; background: #fff; overflow-x: hidd
   0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(.2) rotate(0deg) }
   50% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(90deg) }
 }
-/* mũ cử nhân bay lơ lửng từ dưới lên (cqh = % chiều cao khung Glitter) */
+/* mũ cử nhân bay lơ lửng từ dưới lên (vh: tương thích cả Safari cũ) */
 .cap-float { position: absolute; bottom: -8%; opacity: 0; animation: capfloat 16s linear infinite; }
 @keyframes capfloat {
   0% { transform: translate3d(0, 0, 0) rotate(-14deg); opacity: 0 }
   12% { opacity: .85 }
-  50% { transform: translate3d(calc(var(--dx) * -.5), -52cqh, 0) rotate(14deg) }
+  50% { transform: translate3d(calc(var(--dx) * -.5), -52vh, 0) rotate(14deg) }
   88% { opacity: .85 }
-  100% { transform: translate3d(var(--dx), -112cqh, 0) rotate(-10deg); opacity: 0 }
+  100% { transform: translate3d(var(--dx), -112vh, 0) rotate(-10deg); opacity: 0 }
 }
 /* vệt sáng quét qua huy hiệu / nút */
 .glint { position: relative; overflow: hidden; }
 .glint::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,.8) 50%, transparent 62%); transform: translateX(-130%); animation: glint 4s ease-in-out infinite; }
 @keyframes glint { 0%, 55% { transform: translateX(-130%) } 100% { transform: translateX(130%) } }
+
+/* Dừng animation ở những chỗ không ai nhìn thấy (đỡ nặng máy khi lướt) */
+.sash-paused, .sash-paused * { animation-play-state: paused !important; }
+.page-mode .silk, .page-mode .silk-sheen { animation: none; will-change: auto; }  /* vào trang chính: nền lụa đứng yên */
+/* Ghế được tìm thấy: nhịp sáng nhẹ */
+.seat-on { animation: seatpulse 1.4s ease-out infinite; }
+@keyframes seatpulse { 0% { box-shadow: 0 0 0 0 rgba(43,92,255,.6) } 100% { box-shadow: 0 0 0 11px rgba(43,92,255,0) } }

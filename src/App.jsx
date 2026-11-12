@@ -1,24 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import confetti from 'canvas-confetti'
 import Glitter from './components/Glitter'
-import SparkleTrail from './components/SparkleTrail'
+import Fx from './components/Fx'
+import { puff, celebrate } from './fx'
 import Envelope from './components/Envelope'
 import Invitation from './components/Invitation'
 import SashImage, { bigSash } from './components/Sash'
 import { CONFIG } from './config'
-
-const GOLD = ['#ffc94d', '#ffffff', '#9ec5ff', '#2b5cff']
-const capShape = () => (confetti.shapeFromText ? confetti.shapeFromText({ text: '🎓', scalar: 3 }) : 'circle')
-// Pháo sao nhỏ khi mở nắp hộp
-const puff = () => confetti({ particleCount: 18, spread: 80, startVelocity: 30, gravity: 0.8, ticks: 130, scalar: 0.95, origin: { x: 0.5, y: 0.52 }, shapes: ['star'], colors: GOLD, disableForReducedMotion: true })
-// Pháo hoa mũ cử nhân + sao khi lá thư mở ra trang chính
-const celebrate = () => {
-  const base = { colors: GOLD, shapes: ['star', 'circle', capShape()], scalar: 2, gravity: 0.8, ticks: 200, disableForReducedMotion: true }
-  confetti({ ...base, particleCount: 30, spread: 110, startVelocity: 50, origin: { x: 0.5, y: 0.6 } })
-  setTimeout(() => confetti({ ...base, particleCount: 14, angle: 60, spread: 60, startVelocity: 55, origin: { x: 0, y: 0.85 } }), 180)
-  setTimeout(() => confetti({ ...base, particleCount: 14, angle: 120, spread: 60, startVelocity: 55, origin: { x: 1, y: 0.85 } }), 180)
-}
 
 export default function App() {
   // closed | opened | pulling | expanding | revealing | page
@@ -34,6 +22,7 @@ export default function App() {
   // Khoá cuộn khi còn đang ở màn hình phong bì
   useEffect(() => {
     document.documentElement.style.overflow = phase === 'page' ? '' : 'hidden'
+    document.documentElement.classList.toggle('page-mode', phase === 'page') // nền lụa đứng yên khi lướt trang cho nhẹ máy
     if (phase === 'expanding') window.scrollTo(0, 0)
   }, [phase])
 
@@ -68,7 +57,7 @@ export default function App() {
 
   return (
     <>
-      <SparkleTrail />
+      <Fx />
       {/* Chớp sáng: lá thư phóng to xong → ánh sáng bùng lên và tan đi, trang chính hiện ra qua đó */}
       {(phase === 'expanding' || phase === 'revealing') && (
         <motion.div aria-hidden className="pointer-events-none fixed inset-0 z-[65]"

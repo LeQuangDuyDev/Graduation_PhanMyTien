@@ -34,10 +34,15 @@ export const CONFIG = {
     embedUrl: '',
   },
   finalImage: '/images/anhcuoi.webp', // ảnh cuối trang
-  // 2 bàn dài, mỗi bàn 16 ghế. Điền tên khách theo thứ tự ghế (tối đa 16 tên / bàn):
-  // ghế 1–8 là hàng trên (trái → phải), ghế 9–16 là hàng dưới (trái → phải). Để trống ghế nào thì bỏ qua hoặc điền ''.
+  // Sơ đồ bàn (nằm ngang): Bàn Gia đình ở trên, Bàn bạn bè ở dưới, Cửa nằm bên trái bàn bạn bè.
+  //  - seats: số ghế của bàn (chia đều hàng ghế trên / hàng ghế dưới).
+  //  - guests: tên khách theo thứ tự ghế (nửa đầu ở hàng trên, nửa sau ở hàng dưới).
+  //            Khách nhập đúng tên thì ghế đó được tô đậm. Để trống → ghế không hiện tên (bàn gia đình).
   tables: [
-    { name: 'Bàn 1', note: '', guests: ['Ba', 'Mẹ', 'Anh chị em', 'Ông bà', 'Cô Hương', 'Thầy Long', 'Cô Mai'] },
-    { name: 'Bàn 2', note: '', guests: ['An', 'Bình', 'Chi', 'Dũng', 'Em', 'Phúc', 'Giang', 'Hà'] },
+    { name: 'Bàn Gia đình', seats: 10, guests: [] },
+    { name: 'Bàn bạn bè', seats: 20, guests: ['Doãn', 'Sang', 'Cô Lày', 'Nguyên', 'Tân', 'Đạt', 'Phương', 'Tú Anh', 'Huỳnh', 'Huy', 'Duy', 'Tiên', 'Hoàng', 'Nhi', 'Ny Nhi', 'Bảo', 'Hiếu', 'Tuấn', 'Toàn', 'Khỏe'] },
   ],
+  // Link Google Apps Script (Web app) để lưu form RSVP vào Google Sheet.
+  // Làm theo file HUONG_DAN_GOOGLE_SHEET.md rồi dán link dạng https://script.google.com/macros/s/.../exec vào đây.
+  rsvpUrl: 'https://script.google.com/macros/s/AKfycbzGOmHXjssEFU6RufC1l2MB-FbYUQgYFOi7do4hwY2AIvdMWYY_4Vhy9lXYFKjBcDkkhA/exec',
 }
